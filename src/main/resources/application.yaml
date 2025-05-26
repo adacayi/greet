@@ -1,1 +1,2 @@
 spring.application.name: greet
+greet-back-url: ${GREET_BACK_URL}

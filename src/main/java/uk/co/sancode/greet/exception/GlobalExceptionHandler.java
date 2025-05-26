@@ -7,8 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import uk.co.sancode.greet.config.ApplicationErrorAttributes;
 
@@ -18,6 +20,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     public GlobalExceptionHandler(ApplicationErrorAttributes applicationErrorAttributes) {
         this.applicationErrorAttributes = applicationErrorAttributes;
+    }
+
+    @ExceptionHandler(WebClientResponseException.class)
+    public ResponseEntity<String> handleWebClientResponseException(WebClientResponseException ex) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.putAll(ex.getHeaders()); // Copy original headers
+
+        // Return the original status code, headers, and body (as a string)
+        return ResponseEntity
+                .status(ex.getStatusCode())
+                .headers(headers)
+                .body(ex.getResponseBodyAsString());
     }
 
     @Override
